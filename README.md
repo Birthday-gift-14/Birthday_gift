@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Meine Sucht ❤️</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #fce4ec;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background-image 1.2s ease-in-out;
+            color: #880e4f;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 240, 246, 0.5); 
+            z-index: -1;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.92);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-width: 500px;
+            margin: auto;
+            border: 2px solid #f48fb1;
+            position: relative;
+        }
+
+        #musicControl {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 50%;
+            border: 2px solid #e91e63;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 { font-size: 2.2em; margin-bottom: 20px; }
+        input {
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #f48fb1;
+            border-radius: 10px;
+            width: 80%;
+            margin-bottom: 15px;
+            outline: none;
+            text-align: center;
+        }
+        button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 5px;
+            transition: 0.3s;
+        }
+        button:hover { transform: scale(1.1); background-color: #c2185b; }
+        .hidden { display: none; }
+        .card { border: 2px dashed #e91e63; padding: 20px; margin-top: 20px; border-radius: 15px; background: #fff0f6; text-align: left; }
+        .fade-in { animation: fadeIn 1.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        #hintBtn { background-color: #f48fb1; color: white; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<audio id="bgMusic" loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-love.mp3" type="audio/mpeg">
+</audio>
+
+<div id="musicControl" class="hidden" onclick="toggleMusic()">🎵</div>
+
+<div id="loginSection" class="container">
+    <h1>🔒 Classified Access</h1>
+    <p>Enter the secret code, Mamie🥰❤️.</p>
+    <input type="password" id="passwordInput" placeholder="Hint: That name starting with B…">
+    <br>
+    <button onclick="checkPassword()">Unlock your birthday</button>
+    <p id="errorMsg" style="color: red; display: none;">Wrong password! Try makore akho or the nickname you gave me </p>
+</div>
+
+<div id="menuSection" class="container hidden fade-in">
+    <h1>Happy Birthday, Valentine! 🎂</h1>
+    <p>Welcome to your personal portal, Meine Sucht.</p>
+    <button onclick="showNote()">💌 Read The Note</button>
+    <button onclick="startGame()">🎮 Play ‘The Love Quiz’</button>
+</div>
+
+<div id="noteSection" class="container hidden fade-in">
+    <h1>To Mamie🥰❤️</h1>
+    <div class="card">
+        <p>Happy Birthday, my beautiful <strong>Valentine</strong>!</p>
+        <p>From our late-night calls to the playful “violence” we promise each other daily, you have become my favorite addiction (<em>Meine Sucht</em>). Even when you’re threatening to “end my bloodline” or making me eat burnt food, I wouldn’t trade a single second with you for anything—not even for 24/7 ZESA or unlimited Data! 😂</p>
+        <p>I promise to be right there to watch <em>Big Brother</em> with you (even if I complain the whole time😂😂), to help you ignore the “bread abuse,” and to always be your peace and love you exactly the way you deserve to be loved.</p>
+        <p>Enjoy your special day, my love. Always remember: even if I lose the fight, I still win every time because I have you by my side.</p>
+        <p><strong>I love you more than you love sleeping! ❤️</strong></p>
+        <p>Happy Birthday 🎂🥳 my love. I wish you a lifetime of happiness, and I can’t wait to see your <strong>grey hair</strong> grow in while I’m still right here with you.</p>
+    </div>
+    <br>
+    <button onclick="goBack()">⬅️ Back</button>
+</div>
+
+<div id="gameSection" class="container hidden fade-in">
+    <h1>The Love Quiz 🕵️‍♀️</h1>
+    <div id="quizContainer"></div>
+    <div id="final" class="hidden">
+        <h2>🎉 You Passed! 🎉</h2>
+        <p>You are officially the smartest Gangster I know.</p>
+        <p>I owe you a jar of coffee!( not the Elephant one) 😂</p>
+        <button onclick="goBack()">⬅️ Back to Menu</button>
+    </div>
+</div>
+
+<script>
+    const music = document.getElementById("bgMusic");
+    const musicBtn = document.getElementById("musicControl");
+
+    function toggleMusic() {
+        if (music.paused) {
+            music.play();
+            musicBtn.innerHTML = "⏸️";
+        } else {
+            music.pause();
+            musicBtn.innerHTML = "🎵";
+        }
+    }
+
+    const images = [
+        'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&q=80&w=1000'
+    ];
+
+    let imgIndex = 0;
+    function changeBg() {
+        document.body.style.backgroundImage = `url('${images[imgIndex]}')`;
+        imgIndex = (imgIndex + 1) % images.length;
+    }
+    setInterval(changeBg, 5000);
+    window.onload = changeBg;
+
+    const questions = [
+        { q: "1. What is the fastest mode of transport we agreed on?", a: "broom" },
+        { q: "2. What is the meal we abuse?", a: "bread" },
+        { q: "3. What metaphor made me feel 'stupid' for not understanding?", a: "bridge" },
+        { q: "4. Who is the true love of your life? (Be honest)", a: "grey's anatomy" },
+        { q: "5. Who did you spend all of December 26th talking to?", a: "granny" },
+        { q: "6. Where is your favourite place to 'groove'?", a: "home" },
+        { q: "7. What is the name of our child?", a: "dragon" }
+    ];
+
+    let currentQ = 0;
+    let attempts = 0;
+
+    function checkPassword() {
+        const input = document.getElementById("passwordInput").value.toLowerCase();
+        if (input === "beeshark" || input === "23") {
+            document.getElementById("loginSection").classList.add("hidden");
+            document.getElementById("menuSection").classList.remove("hidden");
+            musicBtn.classList.remove("hidden");
+            music.play().catch(e => console.log("Playback failed: ", e));
+            musicBtn.innerHTML = "⏸️";
+        } else {
+            document.getElementById("errorMsg").style.display = "block";
+        }
+    }
+
+    function startGame() {
+        document.getElementById("menuSection").classList.add("hidden");
+        document.getElementById("gameSection").classList.remove("hidden");
+        document.getElementById("quizContainer").classList.remove("hidden");
+        document.getElementById("final").classList.add("hidden");
+        currentQ = 0;
+        attempts = 0;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentQ >= questions.length) {
+            document.getElementById("quizContainer").classList.add("hidden");
+            document.getElementById("final").classList.remove("hidden");
+            
+            var end = Date.now() + (4 * 1000);
+            (function frame() {
+              confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.8 }, colors: ['#e91e63', '#ffffff'] });
+              confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.8 }, colors: ['#e91e63', '#ffffff'] });
+              if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+            return;
+        }
+        
+        attempts = 0; 
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const container = document.getElementById("quizContainer");
+        let hintHtml = attempts >= 3 ? `<br><button id="hintBtn" onclick="showTheAnswer()">Reveal Answer</button>` : '';
+        
+        container.innerHTML = `
+            <div class="fade-in">
+                <p><strong>${questions[currentQ].q}</strong></p>
+                <input type="text" id="answerInput" placeholder="Type your answer here…">
+                <br>
+                <button onclick="checkAnswer()">Send my love</button>
+                ${hintHtml}
+            </div>
+        `;
+    }
+
+    function checkAnswer() {
+        const inputField = document.getElementById("answerInput");
+        const userAns = inputField.value.toLowerCase();
+        
+        if (userAns.includes(questions[currentQ].a)) {
+            currentQ++;
+            loadQuestion();
+        } else {
+            attempts++;
+            alert("Aah ahh! Try again, my love! 😂");
+            inputField.value = "";
+            if (attempts >= 3) {
+                renderQuestion(); 
+            }
+        }
+    }
+
+    function showTheAnswer() {
+        alert("The answer is: " + questions[currentQ].a.toUpperCase());
+    }
+
+    function showNote() {
+        document.getElementById("menuSection").classList.add("hidden");
+        document.getElementById("noteSection").classList.remove("hidden");
+    }
+
+    function goBack() {
+        document.getElementById("noteSection").classList.add("hidden");
+        document.getElementById("gameSection").classList.add("hidden");
+        document.getElementById("menuSection").classList.remove("hidden");
+    }
+</script>
+</body>
+</html>
